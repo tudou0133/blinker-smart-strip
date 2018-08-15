@@ -208,8 +208,21 @@ void btn_response_callback(const String & state)
 
     Num1.icon("fal fa-pennant");
     Num1.color("#008000");
-    Num1.unit("s");
-    Num1.print(BlinkerTime/1000);
+    if(BlinkerTime/1000/60>600)     //600min 10h
+    {
+        Num1.unit("hour");
+        Num1.print(BlinkerTime/1000/60/60);
+    }
+    else if(BlinkerTime/1000>600)   //600s 10min
+    {
+        Num1.unit("min");
+        Num1.print(BlinkerTime/1000/60);
+    }
+    else
+    {
+        Num1.unit("s");
+        Num1.print(BlinkerTime/1000);
+    }
     Blinker.endFormat();
     //Button5.icon("fal fa-power-off");
     //Button5.text("响应");
@@ -265,8 +278,21 @@ void refresh_screen()
   uint32_t BlinkerTime = millis();
   Num1.icon("fal fa-pennant");
   Num1.color("#008000");
-  Num1.unit("s");
-  Num1.print(BlinkerTime/1000);
+  if(BlinkerTime/1000/60>600)     //600min 10h
+    {
+        Num1.unit("hour");
+        Num1.print(BlinkerTime/1000/60/60);
+    }
+    else if(BlinkerTime/1000>600)   //600s 10min
+    {
+        Num1.unit("min");
+        Num1.print(BlinkerTime/1000/60);
+    }
+    else
+    {
+        Num1.unit("s");
+        Num1.print(BlinkerTime/1000);
+    }
 }
 
 void col_rgb_callback(uint8_t r_value, uint8_t g_value, 
