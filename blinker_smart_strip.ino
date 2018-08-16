@@ -10,9 +10,13 @@
 //#define BLINKER_ESP_SMARTCONFIG //在api.h里改了库，这里不用宏定义了
 #include <Blinker.h>
 #include "EEPROM.h"
-
+#include <Adafruit_NeoPixel.h>
 int addr = 0;//eeprom地址变量
 #define EEPROM_SIZE 64//eeprom空间大小
+
+#define PIN            18
+#define NUMPIXELS      60
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
 char auth[] = "cd27fec96c1a";
 char ssid[30] ;
@@ -345,5 +349,13 @@ void col_rgb_callback(uint8_t r_value, uint8_t g_value,
     BLINKER_LOG2("G value: ", g_value);
     BLINKER_LOG2("B value: ", b_value);
     BLINKER_LOG2("Rrightness value: ", bright_value);
-    RGB.print(0,0,0,0);
+    
+    uint8_t colorR = map(r_value, 0, 255, 0, bright_value);
+    uint8_t colorG = map(g_value, 0, 255, 0, bright_value);
+    uint8_t colorB = map(b_value, 0, 255, 0, bright_value);
+
+    for(int i = 0; i < NUMPIXELS; i++){
+        pixels.setPixelColor(i, pixels.Color(colorR,colorG,colorB));
+        pixels.show();
+    }
 }
