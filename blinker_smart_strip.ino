@@ -201,7 +201,7 @@ void btn_re3_callback(const String & state)
 void btn_re4_callback(const String & state)
 {
     BLINKER_LOG2("btn4 get button state: ", state);
-    //Button4.icon("fal fa-power-off");
+    Button4.icon("fal fa-power-off");
     //Button4.text("开关4","开关4");
     Button4_status = ! Button4_status;
     if(Button4_status)
@@ -225,7 +225,7 @@ void btn_response_callback(const String & state)
 
 void refresh_screen(void)   //心跳包回调函数
 {
-    /*if(Button1_status)
+    if(Button1_status)
     {
       Button1.color("#FFA500");
       Button1.print("on");
@@ -264,7 +264,8 @@ void refresh_screen(void)   //心跳包回调函数
     {
       Button4.color("#696969");
       Button4.print("off");
-    }*/
+    }
+
     time_refresh();
 }
 
