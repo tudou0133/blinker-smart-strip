@@ -222,7 +222,7 @@ void btn_response_callback(const String & state)
     time_refresh();
 }
 
-void refresh_screen()
+void refresh_screen()   //心跳包回调函数
 {
   if(Button1_status)
     {
@@ -271,7 +271,7 @@ void refresh_screen()
     
 }
 
-void time_refresh(void)
+void time_refresh(void) //时间更新函数
 {
     //Blinker.beginFormat();
     //Blinker.vibrate();
