@@ -10,13 +10,17 @@
 //#define BLINKER_ESP_SMARTCONFIG //在api.h里改了库，这里不用宏定义了
 #include <Blinker.h>
 #include "EEPROM.h"
+
 int addr = 0;//eeprom地址变量
 #define EEPROM_SIZE 64//eeprom空间大小
 
 char auth[] = "cd27fec96c1a";
 char ssid[30] ;
 char pswd[30] ;
-bool Button1_status=0,Button2_status=0,Button3_status=0,Button4_status=0;
+bool Button1_status=0,Button2_status=0,Button3_status=0,Button4_status=0;   //按键状态标志位
+int16_t start_time_year,start_time_month,start_time_day,start_time_hour,start_time_min,start_time_sec;  //开机时间
+int16_t operation_time_year,operation_time_month,operation_time_day,operation_time_hour,operation_time_min,operation_time_sec; //运行时间
+bool start_flag=0;
 #define LED_1 23
 #define LED_2 22
 #define btn_re1 "btn_re1" //为统一操作，app上的按钮用btn，硬件上的物理按钮用key
@@ -24,7 +28,8 @@ bool Button1_status=0,Button2_status=0,Button3_status=0,Button4_status=0;
 #define btn_re3 "btn_re3"
 #define btn_re4 "btn_re4"
 #define btn_response "btn_response"
-#define num_millis "num_millis"
+#define num_1 "num_1"
+#define num_2 "num_2"
 #define col_rgb "col_rgb"
 void btn_re1_callback(const String & state);
 void btn_re2_callback(const String & state);
@@ -38,7 +43,8 @@ BlinkerButton Button2(btn_re2,btn_re2_callback);
 BlinkerButton Button3(btn_re3,btn_re3_callback);
 BlinkerButton Button4(btn_re4,btn_re4_callback);
 BlinkerButton Button5(btn_response,btn_response_callback);
-BlinkerNumber Num1(num_millis);
+BlinkerNumber Num1(num_1);
+BlinkerNumber Num2(num_2);
 BlinkerRGB RGB(col_rgb,col_rgb_callback);
 BlinkerTimer BlinkerLoop;
 void blink() {
@@ -99,19 +105,31 @@ void setup() {
     digitalWrite(LED_2, HIGH);
     
    
-   Blinker.setTimezone(8.0);
+    Blinker.setTimezone(8.0);   //设定时区
 
-  
-  BlinkerLoop.loop(0.2, blink);
-  Blinker.attachHeartbeat(refresh_screen);
+
+    BlinkerLoop.loop(0.2, blink);   //0.2s定时器初始化
+    Blinker.attachHeartbeat(refresh_screen);    //心跳包回调函数初始化
+
 }
 
 void loop()
 {
     Blinker.run();
-    
+    if(!start_flag&&Blinker.connected())
+    {
+        Blinker.delay(500);
+        start_time_year = Blinker.year();
+        start_time_month = Blinker.month();
+        start_time_day = Blinker.mday();
+        start_time_hour = Blinker.hour();
+        start_time_min = Blinker.minute();
+        start_time_sec = Blinker.second();
+        start_flag = 1;
+    }
     if (Blinker.available()) {
         BLINKER_LOG2("Blinker.readString(): ", Blinker.readString()); 
+
     }
    
 }
@@ -200,34 +218,8 @@ void btn_re4_callback(const String & state)
 void btn_response_callback(const String & state)
 {
     BLINKER_LOG2("get button state: ", state);
-    uint32_t BlinkerTime = millis();
-    Blinker.beginFormat();
-    Blinker.vibrate();        
-    Blinker.print("millis", BlinkerTime);
-    
-
-    Num1.icon("fal fa-pennant");
-    Num1.color("#008000");
-    if(BlinkerTime/1000/60>600)     //600min 10h
-    {
-        Num1.unit("hour");
-        Num1.print(BlinkerTime/1000/60/60);
-    }
-    else if(BlinkerTime/1000>600)   //600s 10min
-    {
-        Num1.unit("min");
-        Num1.print(BlinkerTime/1000/60);
-    }
-    else
-    {
-        Num1.unit("s");
-        Num1.print(BlinkerTime/1000);
-    }
-    Blinker.endFormat();
-    //Button5.icon("fal fa-power-off");
-    //Button5.text("响应");
-    //Button5.color("#FFFFFF");
-    //Button5.print("on");
+  
+    time_refresh();
 }
 
 void refresh_screen()
@@ -275,23 +267,84 @@ void refresh_screen()
       Button4.print("off");
     }
 
-  uint32_t BlinkerTime = millis();
-  Num1.icon("fal fa-pennant");
-  Num1.color("#008000");
-  if(BlinkerTime/1000/60>600)     //600min 10h
+    time_refresh();
+    
+}
+
+void time_refresh(void)
+{
+    //Blinker.beginFormat();
+    //Blinker.vibrate();
+    //char string_buf[60];
+    //sprintf(string_buf,"系统自%d年%d月%d日 %d:%d:%d 运行",start_time_year,start_time_month,start_time_day,start_time_hour,start_time_min,start_time_sec);
+    //Blinker.print("start_time:",string_buf);
+    operation_time_year = Blinker.year() - start_time_year;
+    operation_time_month = Blinker.month() - start_time_month;
+    operation_time_day = Blinker.mday() - start_time_day;
+    operation_time_hour = Blinker.hour() - start_time_hour;
+    operation_time_min = Blinker.minute() - start_time_min;
+    operation_time_sec = Blinker.second() - start_time_sec;
+    if(operation_time_sec<0)
     {
-        Num1.unit("hour");
-        Num1.print(BlinkerTime/1000/60/60);
+        operation_time_sec +=60;
+        operation_time_min -=1;
     }
-    else if(BlinkerTime/1000>600)   //600s 10min
+    if(operation_time_min<0)
+    {
+        operation_time_min +=60;
+        operation_time_hour -=1;
+    }
+    if(operation_time_hour<0)
+    {
+        operation_time_hour +=24;
+        operation_time_day -=1;
+    }
+    if(operation_time_day<0)
+    {
+        operation_time_month +=12;
+        operation_time_year -=1;
+    }
+    //sprintf(string_buf,"已运行%d年%d月%d日 %d:%d:%d",operation_time_year,operation_time_month,operation_time_day,operation_time_hour,operation_time_min,operation_time_sec);
+    //Blinker.print("operation_time:",string_buf);
+    //Blinker.endFormat();
+    Num1.icon("fal fa-pennant");
+    Num1.color("#008000");
+    Num2.icon("fal fa-pennant");
+    Num2.color("#008000");
+    if(operation_time_year==0&&operation_time_month==0&&operation_time_day==0&&operation_time_hour==0)
     {
         Num1.unit("min");
-        Num1.print(BlinkerTime/1000/60);
+        Num1.print(operation_time_min);
+        Num2.unit("sec");
+        Num2.print(operation_time_sec);
+    }
+    else if(operation_time_year==0&&operation_time_month==0&&operation_time_day==0)
+    {
+        Num1.unit("hour");
+        Num1.print(operation_time_hour);
+        Num2.unit("min");
+        Num2.print(operation_time_min);
+    }
+    else if(operation_time_year==0&&operation_time_month==0)
+    {
+        Num1.unit("day");
+        Num1.print(operation_time_day);
+        Num2.unit("hour");
+        Num2.print(operation_time_hour);
+    }
+    else if(operation_time_year==0)
+    {
+        Num1.unit("month");
+        Num1.print(operation_time_month);
+        Num2.unit("day");
+        Num2.print(operation_time_day);
     }
     else
     {
-        Num1.unit("s");
-        Num1.print(BlinkerTime/1000);
+        Num1.unit("year");
+        Num1.print(operation_time_year);
+        Num2.unit("month");
+        Num2.print(operation_time_month);
     }
 }
 
