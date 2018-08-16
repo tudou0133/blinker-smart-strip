@@ -139,7 +139,7 @@ void btn_re1_callback(const String & state)
     String get_weather = Blinker.weather();
     BLINKER_LOG2("weather: ", get_weather);
     Blinker.delay(6000);
-    BLINKER_LOG2("get button state: ", state);
+    BLINKER_LOG2("btn1 get button state: ", state);
     Button1.icon("fal fa-power-off");
     //Button1.text("开关1");
     Button1_status = ! Button1_status;
@@ -163,7 +163,7 @@ void btn_re2_callback(const String & state)
     //EEPROM.write(0, 1);//使能smart config 下次上电进入smart config
     //EEPROM.commit();
     //Blinker.delay(1000);
-    BLINKER_LOG2("get button state: ", state);
+    BLINKER_LOG2("btn2 get button state: ", state);
     Button2.icon("fal fa-power-off");
     //Button2.text("开关2");
     Button2_status = ! Button2_status;
@@ -181,7 +181,7 @@ void btn_re2_callback(const String & state)
 }
 void btn_re3_callback(const String & state)
 {
-    BLINKER_LOG2("get button state: ", state);
+    BLINKER_LOG2("btn3 get button state: ", state);
     Button3.icon("fal fa-power-off");
     //Button3.text("开关3");
     Button3_status = ! Button3_status;
@@ -217,14 +217,15 @@ void btn_re4_callback(const String & state)
 }
 void btn_response_callback(const String & state)
 {
-    BLINKER_LOG2("get button state: ", state);
-  
+    BLINKER_LOG2("btn5 get button state: ", state);
+    Blinker.beginFormat();
     time_refresh();
+    Blinker.endFormat();
 }
 
-void refresh_screen()   //心跳包回调函数
+void refresh_screen(void)   //心跳包回调函数
 {
-  if(Button1_status)
+    /*if(Button1_status)
     {
       Button1.color("#FFA500");
       Button1.print("on");
@@ -234,7 +235,7 @@ void refresh_screen()   //心跳包回调函数
       Button1.color("#696969");
       Button1.print("off");
     }
-  if(Button2_status)
+    if(Button2_status)
     {
       Button2.color("#FFA500");
       Button2.print("on");
@@ -244,19 +245,17 @@ void refresh_screen()   //心跳包回调函数
       Button2.color("#696969");
       Button2.print("off");
     }
-  if(Button3_status)
+    if(Button3_status)
     {
-      digitalWrite(LED_1, 0);
       Button3.color("#FFA500");
       Button3.print("on");
     }
     else
     {
-      digitalWrite(LED_1, 1);
       Button3.color("#696969");
       Button3.print("off");
     }
-  if(Button4_status)
+    if(Button4_status)
     {
       Button4.color("#FFA500");
       Button4.print("on");
@@ -265,19 +264,12 @@ void refresh_screen()   //心跳包回调函数
     {
       Button4.color("#696969");
       Button4.print("off");
-    }
-
+    }*/
     time_refresh();
-    
 }
 
 void time_refresh(void) //时间更新函数
 {
-    //Blinker.beginFormat();
-    //Blinker.vibrate();
-    //char string_buf[60];
-    //sprintf(string_buf,"系统自%d年%d月%d日 %d:%d:%d 运行",start_time_year,start_time_month,start_time_day,start_time_hour,start_time_min,start_time_sec);
-    //Blinker.print("start_time:",string_buf);
     operation_time_year = Blinker.year() - start_time_year;
     operation_time_month = Blinker.month() - start_time_month;
     operation_time_day = Blinker.mday() - start_time_day;
@@ -304,12 +296,9 @@ void time_refresh(void) //时间更新函数
         operation_time_month +=12;
         operation_time_year -=1;
     }
-    //sprintf(string_buf,"已运行%d年%d月%d日 %d:%d:%d",operation_time_year,operation_time_month,operation_time_day,operation_time_hour,operation_time_min,operation_time_sec);
-    //Blinker.print("operation_time:",string_buf);
-    //Blinker.endFormat();
-    Num1.icon("fal fa-pennant");
+    Num1.icon("fal fa-clock");
     Num1.color("#008000");
-    Num2.icon("fal fa-pennant");
+    Num2.icon("fal fa-clock");
     Num2.color("#008000");
     if(operation_time_year==0&&operation_time_month==0&&operation_time_day==0&&operation_time_hour==0)
     {
