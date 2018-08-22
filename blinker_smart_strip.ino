@@ -11,6 +11,7 @@
 #include <Blinker.h>
 #include "EEPROM.h"
 #include <Adafruit_NeoPixel.h>
+
 int addr = 0;//eeprom地址变量
 #define EEPROM_SIZE 64//eeprom空间大小
 
@@ -98,21 +99,23 @@ void smart_config_setup()
     }
 }
 void setup() {
+
+    pinMode(LED_1, OUTPUT);
+    pinMode(LED_2, OUTPUT);
+    digitalWrite(LED_1, HIGH);
+    digitalWrite(LED_2, LOW);
+
     Serial.begin(115200);
     //Serial2.begin(115200);
 
     smart_config_setup();
     
-    pinMode(LED_1, OUTPUT);
-    pinMode(LED_2, OUTPUT);
-    digitalWrite(LED_1, HIGH);
-    digitalWrite(LED_2, HIGH);
-    
-   
+    pixels.begin();
+    pixels.show();
     Blinker.setTimezone(8.0);   //设定时区
 
 
-    BlinkerLoop.loop(0.2, blink);   //0.2s定时器初始化
+    //BlinkerLoop.loop(0.2, blink);   //0.2s定时器初始化
     Blinker.attachHeartbeat(refresh_screen);    //心跳包回调函数初始化
 
 }
@@ -134,6 +137,7 @@ void loop()
     if (Blinker.available()) {
         BLINKER_LOG2("Blinker.readString(): ", Blinker.readString()); 
 
+        
     }
    
 }
@@ -229,46 +233,30 @@ void btn_response_callback(const String & state)
 
 void refresh_screen(void)   //心跳包回调函数
 {
-    if(Button1_status)
-    {
+    if(Button1_status){
       Button1.color("#FFA500");
-      Button1.print("on");
-    }
-    else
-    {
+      Button1.print("on");}
+    else{
       Button1.color("#696969");
-      Button1.print("off");
-    }
-    if(Button2_status)
-    {
+      Button1.print("off");}
+    if(Button2_status){
       Button2.color("#FFA500");
-      Button2.print("on");
-    }
-    else
-    {
+      Button2.print("on");}
+    else{
       Button2.color("#696969");
-      Button2.print("off");
-    }
-    if(Button3_status)
-    {
+      Button2.print("off");}
+    if(Button3_status){
       Button3.color("#FFA500");
-      Button3.print("on");
-    }
-    else
-    {
+      Button3.print("on");}
+    else{
       Button3.color("#696969");
-      Button3.print("off");
-    }
-    if(Button4_status)
-    {
+      Button3.print("off");}
+    if(Button4_status){
       Button4.color("#FFA500");
-      Button4.print("on");
-    }
-    else
-    {
+      Button4.print("on");}
+    else{
       Button4.color("#696969");
-      Button4.print("off");
-    }
+      Button4.print("off");}
 
     time_refresh();
 }
@@ -281,65 +269,47 @@ void time_refresh(void) //时间更新函数
     operation_time_hour = Blinker.hour() - start_time_hour;
     operation_time_min = Blinker.minute() - start_time_min;
     operation_time_sec = Blinker.second() - start_time_sec;
-    if(operation_time_sec<0)
-    {
+    if(operation_time_sec<0){
         operation_time_sec +=60;
-        operation_time_min -=1;
-    }
-    if(operation_time_min<0)
-    {
+        operation_time_min -=1;}
+    if(operation_time_min<0){
         operation_time_min +=60;
-        operation_time_hour -=1;
-    }
-    if(operation_time_hour<0)
-    {
+        operation_time_hour -=1;}
+    if(operation_time_hour<0){
         operation_time_hour +=24;
-        operation_time_day -=1;
-    }
-    if(operation_time_day<0)
-    {
+        operation_time_day -=1;}
+    if(operation_time_day<0){
         operation_time_month +=12;
-        operation_time_year -=1;
-    }
+        operation_time_year -=1;}
     Num1.icon("fal fa-clock");
     Num1.color("#008000");
     Num2.icon("fal fa-clock");
     Num2.color("#008000");
-    if(operation_time_year==0&&operation_time_month==0&&operation_time_day==0&&operation_time_hour==0)
-    {
+    if(operation_time_year==0&&operation_time_month==0&&operation_time_day==0&&operation_time_hour==0){
         Num1.unit("min");
         Num1.print(operation_time_min);
         Num2.unit("sec");
-        Num2.print(operation_time_sec);
-    }
-    else if(operation_time_year==0&&operation_time_month==0&&operation_time_day==0)
-    {
+        Num2.print(operation_time_sec);}
+    else if(operation_time_year==0&&operation_time_month==0&&operation_time_day==0){
         Num1.unit("hour");
         Num1.print(operation_time_hour);
         Num2.unit("min");
-        Num2.print(operation_time_min);
-    }
-    else if(operation_time_year==0&&operation_time_month==0)
-    {
+        Num2.print(operation_time_min);}
+    else if(operation_time_year==0&&operation_time_month==0){
         Num1.unit("day");
         Num1.print(operation_time_day);
         Num2.unit("hour");
-        Num2.print(operation_time_hour);
-    }
-    else if(operation_time_year==0)
-    {
+        Num2.print(operation_time_hour);}
+    else if(operation_time_year==0){
         Num1.unit("month");
         Num1.print(operation_time_month);
         Num2.unit("day");
-        Num2.print(operation_time_day);
-    }
-    else
-    {
+        Num2.print(operation_time_day);}
+    else{
         Num1.unit("year");
         Num1.print(operation_time_year);
         Num2.unit("month");
-        Num2.print(operation_time_month);
-    }
+        Num2.print(operation_time_month);}
 }
 
 void col_rgb_callback(uint8_t r_value, uint8_t g_value, 
@@ -349,13 +319,15 @@ void col_rgb_callback(uint8_t r_value, uint8_t g_value,
     BLINKER_LOG2("G value: ", g_value);
     BLINKER_LOG2("B value: ", b_value);
     BLINKER_LOG2("Rrightness value: ", bright_value);
-    
+    BLINKER_LOG2("umPixels(): ", pixels.numPixels());
     uint8_t colorR = map(r_value, 0, 255, 0, bright_value);
     uint8_t colorG = map(g_value, 0, 255, 0, bright_value);
     uint8_t colorB = map(b_value, 0, 255, 0, bright_value);
 
     for(int i = 0; i < NUMPIXELS; i++){
         pixels.setPixelColor(i, pixels.Color(colorR,colorG,colorB));
-        pixels.show();
+          
     }
+    pixels.show();
+
 }
