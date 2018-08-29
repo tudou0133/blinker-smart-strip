@@ -7,6 +7,7 @@
 
 #define BLINKER_PRINT Serial
 #define BLINKER_MQTT
+//#define BLINKER_DEBUG_ALL
 //#define BLINKER_ESP_SMARTCONFIG //在api.h里改了库，这里不用宏定义了
 #include <Blinker.h>
 #include "EEPROM.h"
@@ -115,7 +116,7 @@ void setup() {
     Blinker.setTimezone(8.0);   //设定时区
 
 
-    //BlinkerLoop.loop(0.2, blink);   //0.2s定时器初始化
+    BlinkerLoop.loop(0.2, blink);   //0.2s定时器初始化
     Blinker.attachHeartbeat(refresh_screen);    //心跳包回调函数初始化
 
 }
@@ -226,9 +227,9 @@ void btn_re4_callback(const String & state)
 void btn_response_callback(const String & state)
 {
     BLINKER_LOG2("btn5 get button state: ", state);
-    Blinker.beginFormat();
+    //Blinker.beginFormat();
     time_refresh();
-    Blinker.endFormat();
+    //Blinker.endFormat();
 }
 
 void refresh_screen(void)   //心跳包回调函数
