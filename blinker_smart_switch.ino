@@ -11,8 +11,11 @@
 //#define BLINKER_ESP_SMARTCONFIG //在api.h里改了库，这里不用宏定义了
 #include <Blinker.h>
 #include "EEPROM.h"
+#include "Wire.h"//IIC库
 #include <Adafruit_NeoPixel.h>
-
+#include <U8g2lib.h>//OLED库
+//U8G2_SH1106_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE,23,22);
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE,23,22);
 int addr = 0;//eeprom地址变量
 #define EEPROM_SIZE 64//eeprom空间大小
 
@@ -27,8 +30,8 @@ bool Button1_status=0,Button2_status=0,Button3_status=0,Button4_status=0;   //�
 int16_t start_time_year,start_time_month,start_time_day,start_time_hour,start_time_min,start_time_sec;  //开机时间
 int16_t operation_time_year,operation_time_month,operation_time_day,operation_time_hour,operation_time_min,operation_time_sec; //运行时间
 bool start_flag=0;
-#define LED_1 23
-#define LED_2 22
+#define LED_1 33
+#define LED_2 32
 #define btn_re1 "btn_re1" //为统一操作，app上的按钮用btn，硬件上的物理按钮用key
 #define btn_re2 "btn_re2"
 #define btn_re3 "btn_re3"
@@ -118,6 +121,15 @@ void setup() {
 
     BlinkerLoop.loop(0.2, blink);   //0.2s定时器初始化
     Blinker.attachHeartbeat(refresh_screen);    //心跳包回调函数初始化
+
+    u8g2.begin();
+    u8g2.clearBuffer();					// clear the internal memory
+    //u8g2.setFont(u8g2_font_t0_11_t_all);	// choose a suitable font
+    //u8g2.drawStr(0,10,"Hello World!");	// write something to the internal memory
+    //u8g2.drawStr(0,18,"Hello World!");
+    u8g2.setFont(u8g2_font_fub35_tn);
+    u8g2.drawStr(10,64,"23");
+    u8g2.sendBuffer();					// transfer internal memory to the display
 
 }
 
